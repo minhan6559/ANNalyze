@@ -20,6 +20,7 @@ def initialize_params(nodes_per_layer)
         params["b#{i+1}"] = Numo::DFloat.zeros(cur, 1)
         prev = cur
     end
+    return params
 end
 
 def single_layer_forward_propagation(a, w, b, activation=Activation::RELU)
@@ -44,7 +45,7 @@ def forward_propagation(x, model)
     cache = {}
     a_cur = x
 
-    model.nodes_per_layer.each_with_index do |cur, i|
+    model.nodes_per_layer.length.times do |i|
         layer_idx = i + 1
         a_prev = a_cur
         activation = model.activations[i]
@@ -58,19 +59,21 @@ def forward_propagation(x, model)
 end
 
 def compute_cost(aL, y)
-    m = y.shape[1]
-    cost = -(1./m) * (y * Numo::NMath.log(aL)).sum
+    m = y.shape[1].to_f
+    loss = y * Numo::NMath.log(aL)
+    cost = loss.sum
+    cost = -1.0/m * cost
     return cost
 end
 
 def compute_accuracy(aL, y)
-    aL = aL.argmax(axis: 0)
-    y = y.argmax(axis: 0)
-    return (aL.eq(y)).count.to_f / y.shape[0]
+    _aL = aL.argmax(axis: 0)
+    _y = y.argmax(axis: 0)
+    return (_aL.eq(_y)).count.to_f / y.shape[1]
 end
 
 def single_layer_backward_propagation(dA_cur, w_cur, b_cur, z_cur, a_prev, activation=Activation::RELU)
-    m = a_prev.shape[1]
+    m = a_prev.shape[1].to_f
     if activation == Activation::SIGMOID
         activation_func = method(:sigmoid_backward)
     elsif activation == Activation::RELU
@@ -92,13 +95,13 @@ def single_layer_backward_propagation(dA_cur, w_cur, b_cur, z_cur, a_prev, activ
 end
 
 # softmax regression deep neural network backward propagation
-def backward_propagation(y_hat, y, cache, model, eps = 0.000000000001)
-    m = y.shape[1]
+def backward_propagation(aL, y, cache, model, eps = 0.000000000001)
+    m = y.shape[1].to_f
     
-    dA_prev = y_hat - y
-    L = model.nodes_per_layer.length
+    dA_prev = aL - y
+    l = model.nodes_per_layer.length
 
-    (0...L).reverse_each do |layer_idx_prev|
+    (0...l).reverse_each do |layer_idx_prev|
         layer_idx_cur = layer_idx_prev + 1
         activ_function_cur = model.activations[layer_idx_prev]
         
@@ -120,25 +123,45 @@ end
 
 def update_params(model)
     model.nodes_per_layer.length.times do |i|
-        layer_idx = j + 1
+        layer_idx = i + 1
         model.params["W#{layer_idx}"] -= model.learning_rate * model.grads["dW#{layer_idx}"]
         model.params["b#{layer_idx}"] -= model.learning_rate * model.grads["db#{layer_idx}"]
     end
 end
 
 def train(x, y, model, epochs=1000)
-    costs = []
-    accuracies = []
     epochs.times do |i|
         aL, cache = forward_propagation(x, model)
         cost = compute_cost(aL, y)
         accu = compute_accuracy(aL, y)
         backward_propagation(aL, y, cache, model)
         update_params(model)
-        model.costs << cost
         if i % 100 == 0
             puts "Cost after iteration #{i}: #{cost}"
             puts "Accuracy after iteration #{i}: #{accu}"
         end
     end
+end
+
+def predict(x, model)
+    aL = forward_propagation(x, model)[0]
+    return aL
+end
+
+x_train = Polars.read_csv("./dataset/small_train.csv").to_numo
+y_train = Polars.read_csv("./dataset/small_labels.csv").to_numo
+model = ANN.new([64, 32, 10], [Activation::RELU, Activation::RELU, Activation::SOFTMAX], 0.01)
+
+train(x_train, y_train, model, 1000)
+x_test = Polars.read_csv("./dataset/full_train.csv").to_numo
+y_test = Polars.read_csv("./dataset/full_labels.csv").to_numo
+
+puts "Type your index:"
+idx = gets.chomp.to_i
+
+while idx != -1
+    puts "Predicted value: #{predict(x_test[true, idx..idx], model).argmax}"
+    puts "Actual value: #{y_test[true, idx..idx].argmax}"
+    puts "Type your index:"
+    idx = gets.chomp.to_i
 end

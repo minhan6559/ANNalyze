@@ -10,9 +10,16 @@ set width: 800
 set height: 600
 set background: "#1e1e1e"
 
-time = Benchmark.measure do
-    df = Polars.read_csv("./dataset/mnist_train.csv")
-    x = df.to_numo
-    p x
+class ANN
+    attr_accessor :dict
+    def initialize()
+        @dict = {}
+    end
 end
-puts time.real
+
+model = ANN.new()
+model.dict['W1'] = Numo::DFloat.new(3, 2).seq
+model.dict['W1'] -= Numo::DFloat.new(3, 2).seq
+
+m = 2
+p 1 / (m.to_f)
