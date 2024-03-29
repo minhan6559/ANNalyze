@@ -24,8 +24,5 @@ def softmax(z):
     return (np.exp(z.T) / np.sum(np.exp(z), axis=1)).T
 
 
-a = np.array([[2, 3, 1], [4, 5, 6]])
-b = np.array([[2, 3, 1], [4, 5, 6]])
-print(a * b)
-
-print(list(reversed(list(enumerate([1, 2, 3, 4, 5])))))
+b = np.arange(10,19).reshape(3, 3)
+print(np.log(b))
