@@ -1,6 +1,6 @@
 require_relative 'Activations'
+require_relative 'Optimizers'
 require 'numo/narray'
-# require 'polars-df'
 require 'rover-df'
 
 # Artificial Neural Network class
@@ -127,9 +127,13 @@ def update_params_with_gd(model)
     end
 end
 
-def train(x, y, model, epochs = 1000)
+def train(x, y, model, epochs = 1000, optimizer = "gd")
     m = x.shape[1]
     batch_size = model.batch_size
+
+    if optimizer == "adam"
+        adam = Adam.new(model.nodes_per_layer)
+    end
 
     epochs.times do |i|
         permutated_indexes = (0...m).to_a.shuffle
@@ -145,7 +149,11 @@ def train(x, y, model, epochs = 1000)
             aL, cache = forward_propagation(mini_batch_X, model)
             total_cost += compute_cost(aL, mini_batch_Y)
             backward_propagation(aL, mini_batch_Y, cache, model)
-            update_params_with_gd(model)
+            if optimizer == "adam"
+                update_params_with_adam(model, adam)
+            else
+                update_params_with_gd(model)
+            end
         end
 
         if m % batch_size != 0
@@ -155,9 +163,14 @@ def train(x, y, model, epochs = 1000)
             aL, cache = forward_propagation(mini_batch_X, model)
             total_cost += compute_cost(aL, mini_batch_Y)
             backward_propagation(aL, mini_batch_Y, cache, model)
-            update_params_with_gd(model)
+            if optimizer == "adam"
+                update_params_with_adam(model, adam)
+            else
+                update_params_with_gd(model)
+            end
         end
-        avg_cost = total_cost / m
+        
+        avg_cost = total_cost / (num_complete_minibatches + (m % batch_size != 0 ? 1 : 0))
 
         if i % 1 == 0
             puts "Cost after iteration #{i}: #{avg_cost}"
@@ -191,7 +204,7 @@ y_train = load_dataset("10000_Y_train")
 
 model = ANN.new([32, 16, 10], [Activation::RELU, Activation::RELU, Activation::SOFTMAX], 64)
 
-train(x_train, y_train, model, 25)
-x_val = Polars.read_csv("./dataset/X_val.csv").to_numo
-y_val = Polars.read_csv("./dataset/Y_val.csv").to_numo
+train(x_train, y_train, model, 25, "gd")
+x_val = load_dataset("X_val")
+y_val = load_dataset("Y_val")
 puts "Accuracy: #{compute_accuracy(forward_propagation(x_val, model)[0], y_val)}"
