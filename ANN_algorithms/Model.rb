@@ -1,6 +1,7 @@
 require_relative 'Activations'
 require 'numo/narray'
-require 'polars-df'
+# require 'polars-df'
+require 'rover-df'
 
 # Artificial Neural Network class
 class ANN
@@ -171,17 +172,23 @@ def predict(x, model)
 end
 
 def save_model(model, model_name)
-    fp = File.open("./save_models/#{model_name}.dat", "w")
+    fp = File.open("./save_models/#{model_name}.bin", "wb")
     fp.write(Marshal.dump(model))
     fp.close
 end
 
 def load_model(model_name)
-    return Marshal.load(File.read("./save_models/#{model_name}.dat"))
+    return Marshal.load(File.open("./save_models/#{model_name}.bin", "rb"))
 end
 
-x_train = Polars.read_csv("./dataset/10000_X_train.csv").to_numo
-y_train = Polars.read_csv("./dataset/10000_Y_train.csv").to_numo
+def load_dataset(dataset_name)
+    dataset = Marshal.load(File.open("./dataset_bin/#{dataset_name}.bin", "rb"))
+    return dataset
+end
+
+x_train = load_dataset("10000_X_train")
+y_train = load_dataset("10000_Y_train")
+
 model = ANN.new([32, 16, 10], [Activation::RELU, Activation::RELU, Activation::SOFTMAX], 64)
 
 train(x_train, y_train, model, 25)
