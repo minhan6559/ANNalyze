@@ -1,5 +1,3 @@
-require 'numo/narray'
-require 'polars-df'
 module Activation
     SIGMOID = 1
     RELU = 2

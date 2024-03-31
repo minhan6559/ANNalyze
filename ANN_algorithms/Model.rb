@@ -1,12 +1,15 @@
 require_relative 'Activations'
+require 'numo/narray'
+require 'polars-df'
 
 # Artificial Neural Network class
 class ANN
-    attr_accessor :nodes_per_layer, :params, :activations, :learning_rate, :grads
-    def initialize(nodes_per_layer, activations, learning_rate)
+    attr_accessor :nodes_per_layer, :params, :activations, :batch_size, :learning_rate, :grads
+    def initialize(nodes_per_layer, activations, batch_size = 64, learning_rate = 0.05)
         @nodes_per_layer = nodes_per_layer
         @activations = activations
         @params = initialize_params(nodes_per_layer)
+        @batch_size = batch_size
         @learning_rate = learning_rate
         @grads = {}
     end
@@ -23,22 +26,21 @@ def initialize_params(nodes_per_layer)
     return params
 end
 
-def single_layer_forward_propagation(a, w, b, activation=Activation::RELU)
-    z = w.dot(a) + b
-    
+def single_layer_forward_propagation(a_prev, w, b, activation=Activation::RELU)
+    z = w.dot(a_prev) + b
     case activation
     when Activation::SIGMOID
-        activation_func = method(:sigmoid)
+        a = sigmoid(z)
     when Activation::RELU
-        activation_func = method(:relu)
+        a = relu(z)
     when Activation::TANH
-        activation_func = method(:tanh)
+        a = tanh(z)
     when Activation::SOFTMAX
-        activation_func = method(:softmax)
+        a = softmax(z)
     else
         raise "Non-supported activation function"
     end
-    return activation_func.call(z), z
+    return a, z
 end
 
 def forward_propagation(x, model)
@@ -60,10 +62,7 @@ end
 
 def compute_cost(aL, y)
     m = y.shape[1].to_f
-    loss = y * Numo::NMath.log(aL)
-    cost = loss.sum
-    cost = -1.0/m * cost
-    return cost
+    return -(1.0/m) * (y * Numo::NMath.log(aL)).sum
 end
 
 def compute_accuracy(aL, y)
@@ -74,30 +73,28 @@ end
 
 def single_layer_backward_propagation(dA_cur, w_cur, b_cur, z_cur, a_prev, activation=Activation::RELU)
     m = a_prev.shape[1].to_f
-    if activation == Activation::SIGMOID
-        activation_func = method(:sigmoid_backward)
-    elsif activation == Activation::RELU
-        activation_func = method(:relu_backward)
-    elsif activation == Activation::TANH
-        activation_func = method(:tanh_backward)
-    elsif activation == Activation::SOFTMAX
-        activation_func = method(:softmax_backward)
+    case activation
+    when Activation::SIGMOID
+        dZ_cur = sigmoid_backward(dA_cur, z_cur)
+    when Activation::RELU
+        dZ_cur = relu_backward(dA_cur, z_cur)
+    when Activation::TANH
+        dZ_cur = tanh_backward(dA_cur, z_cur)
+    when Activation::SOFTMAX
+        dZ_cur = softmax_backward(dA_cur, z_cur)
     else
         raise "Non-supported activation function"
     end
 
-    dZ_cur = activation_func.call(dA_cur, z_cur)
-    dW_cur = (1./m) * dZ_cur.dot(a_prev.transpose)
-    db_cur = (1./m) * dZ_cur.sum(axis: 1, keepdims: true)
+    dW_cur = (1.0/m) * dZ_cur.dot(a_prev.transpose)
+    db_cur = (1.0/m) * dZ_cur.sum(axis: 1, keepdims: true)
     dA_prev = w_cur.transpose.dot(dZ_cur)
 
     return dA_prev, dW_cur, db_cur
 end
 
 # softmax regression deep neural network backward propagation
-def backward_propagation(aL, y, cache, model, eps = 0.000000000001)
-    m = y.shape[1].to_f
-    
+def backward_propagation(aL, y, cache, model)
     dA_prev = aL - y
     l = model.nodes_per_layer.length
 
@@ -121,7 +118,7 @@ def backward_propagation(aL, y, cache, model, eps = 0.000000000001)
     end
 end
 
-def update_params(model)
+def update_params_with_gd(model)
     model.nodes_per_layer.length.times do |i|
         layer_idx = i + 1
         model.params["W#{layer_idx}"] -= model.learning_rate * model.grads["dW#{layer_idx}"]
@@ -129,39 +126,65 @@ def update_params(model)
     end
 end
 
-def train(x, y, model, epochs=1000)
+def train(x, y, model, epochs = 1000)
+    m = x.shape[1]
+    batch_size = model.batch_size
+
     epochs.times do |i|
-        aL, cache = forward_propagation(x, model)
-        cost = compute_cost(aL, y)
-        accu = compute_accuracy(aL, y)
-        backward_propagation(aL, y, cache, model)
-        update_params(model)
-        if i % 100 == 0
-            puts "Cost after iteration #{i}: #{cost}"
-            puts "Accuracy after iteration #{i}: #{accu}"
+        permutated_indexes = (0...m).to_a.shuffle
+        shuffled_X = x[true, permutated_indexes].reshape(784, m)
+        shuffled_Y = y[true, permutated_indexes].reshape(10, m)
+
+        total_cost = 0
+        num_complete_minibatches = (m / batch_size).to_i
+        for k in 0...num_complete_minibatches
+            mini_batch_X = shuffled_X[true, k * batch_size...(k+1) * batch_size]
+            mini_batch_Y = shuffled_Y[true, k * batch_size...(k+1) * batch_size]
+
+            aL, cache = forward_propagation(mini_batch_X, model)
+            total_cost += compute_cost(aL, mini_batch_Y)
+            backward_propagation(aL, mini_batch_Y, cache, model)
+            update_params_with_gd(model)
+        end
+
+        if m % batch_size != 0
+            mini_batch_X = shuffled_X[true, num_complete_minibatches * batch_size...m]
+            mini_batch_Y = shuffled_Y[true, num_complete_minibatches * batch_size...m]
+
+            aL, cache = forward_propagation(mini_batch_X, model)
+            total_cost += compute_cost(aL, mini_batch_Y)
+            backward_propagation(aL, mini_batch_Y, cache, model)
+            update_params_with_gd(model)
+        end
+        avg_cost = total_cost / m
+
+        if i % 1 == 0
+            puts "Cost after iteration #{i}: #{avg_cost}"
+            # puts "Accuracy after iteration #{i}: #{compute_accuracy(forward_propagation(x, model)[0], y)}"
         end
     end
 end
 
 def predict(x, model)
     aL = forward_propagation(x, model)[0]
-    return aL
+    return aL.argmax
 end
 
-x_train = Polars.read_csv("./dataset/small_train.csv").to_numo
-y_train = Polars.read_csv("./dataset/small_labels.csv").to_numo
-model = ANN.new([64, 32, 10], [Activation::RELU, Activation::RELU, Activation::SOFTMAX], 0.01)
-
-train(x_train, y_train, model, 1000)
-x_test = Polars.read_csv("./dataset/full_train.csv").to_numo
-y_test = Polars.read_csv("./dataset/full_labels.csv").to_numo
-
-puts "Type your index:"
-idx = gets.chomp.to_i
-
-while idx != -1
-    puts "Predicted value: #{predict(x_test[true, idx..idx], model).argmax}"
-    puts "Actual value: #{y_test[true, idx..idx].argmax}"
-    puts "Type your index:"
-    idx = gets.chomp.to_i
+def save_model(model, model_name)
+    fp = File.open("./save_models/#{model_name}.dat", "w")
+    fp.write(Marshal.dump(model))
+    fp.close
 end
+
+def load_model(model_name)
+    return Marshal.load(File.read("./save_models/#{model_name}.dat"))
+end
+
+x_train = Polars.read_csv("./dataset/10000_X_train.csv").to_numo
+y_train = Polars.read_csv("./dataset/10000_Y_train.csv").to_numo
+model = ANN.new([32, 16, 10], [Activation::RELU, Activation::RELU, Activation::SOFTMAX], 64)
+
+train(x_train, y_train, model, 25)
+x_val = Polars.read_csv("./dataset/X_val.csv").to_numo
+y_val = Polars.read_csv("./dataset/Y_val.csv").to_numo
+puts "Accuracy: #{compute_accuracy(forward_propagation(x_val, model)[0], y_val)}"
