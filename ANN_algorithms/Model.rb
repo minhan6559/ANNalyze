@@ -36,6 +36,8 @@ def single_layer_forward_propagation(a_prev, w, b, activation=Activation::RELU)
         a = relu(z)
     when Activation::TANH
         a = tanh(z)
+    when Activation::SOFTPLUS
+        a = softplus(z)
     when Activation::SOFTMAX
         a = softmax(z)
     else
@@ -81,6 +83,8 @@ def single_layer_backward_propagation(dA_cur, w_cur, b_cur, z_cur, a_prev, activ
         dZ_cur = relu_backward(dA_cur, z_cur)
     when Activation::TANH
         dZ_cur = tanh_backward(dA_cur, z_cur)
+    when Activation::SOFTPLUS
+        dZ_cur = softplus_backward(dA_cur, z_cur)
     when Activation::SOFTMAX
         dZ_cur = softmax_backward(dA_cur, z_cur)
     else

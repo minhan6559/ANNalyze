@@ -1,5 +1,6 @@
 require 'ruby2d'
 require 'savio'
+require 'numo/narray'
 require_relative './UI/MainMenu.rb'
 
 set title: "ANNalyze"

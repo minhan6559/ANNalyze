@@ -2,7 +2,8 @@ module Activation
     SIGMOID = 1
     RELU = 2
     TANH = 3
-    SOFTMAX = 4
+    SOFTPLUS = 4
+    SOFTMAX = 5
 end
 
 def sigmoid(z)
@@ -37,4 +38,12 @@ end
 
 def softmax_backward(dA, z)
     return dA
+end
+
+def softplus(z)
+    return Numo::NMath.log(1 + Numo::NMath.exp(z))
+end
+
+def softplus_backward(dA, z)
+    return dA * sigmoid(z)
 end
