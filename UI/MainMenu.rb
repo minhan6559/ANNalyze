@@ -1,4 +1,6 @@
 require_relative 'Events.rb'
+require_relative 'BuildingScreen.rb'
+
 def render_main_menu()
     main_menu_background = Image.new(
         './images/MainMenu/Main_menu_background.png',
@@ -21,7 +23,7 @@ def render_main_menu()
         case event.button
         when :left
             if x.between?(221, 221 + 676.0 / 2) && y.between?(297, 297 + 221)
-
+                render_building_screen(events)
             elsif x.between?(692, 692 + 676.0 / 2) && y.between?(297, 297 + 221)
 
             end

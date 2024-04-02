@@ -5,18 +5,18 @@ def create_button(file_path, x, y, width, height)
         clip_width: width,
         time: 150,
         animations: {
-            not_hover: 0..0,
-            hover: 1..1
+            not_hover: 1..1,
+            hover: 0..0
         },
-        loop: false
+        loop: true
     )
 
     event = on :mouse_move do |event|
         x_mouse, y_mouse = event.x, event.y
         if x_mouse.between?(x, x + width) and y_mouse.between?(y, y + height)
-            btn.play(animation: :hover, loop: true)
-        else
             btn.play animation: :not_hover
+        else
+            btn.play(animation: :hover)
         end
     end
     return event
