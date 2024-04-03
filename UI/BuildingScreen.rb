@@ -18,6 +18,6 @@ def render_building_screen(events)
 
     events << create_button(
         'images\BuildingScreen\Home_button.png',
-        1171, 12, 55, 47
+        1171, 10, 55, 47
     )
 end
