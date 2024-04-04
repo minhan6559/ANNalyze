@@ -24,6 +24,7 @@ def start_window()
 
     prev_screen = nil
     screen = Screen.new()
+
     update do
         if prev_screen != screen.current_type
             case screen.current_type

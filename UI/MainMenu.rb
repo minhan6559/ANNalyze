@@ -10,12 +10,12 @@ def render_main_menu(screen)
 
     build_btn = create_button(
         './images/MainMenu/Build_button.png',
-        221, 297, 676.0 / 2, 221, ScreenType::MAIN_MENU
+        221, 297, 676.0 / 2, 221
     )
     
     infer_btn = create_button(
         './images/MainMenu/Inference_button.png',
-        692, 297, 676.0 / 2, 221, ScreenType::MAIN_MENU
+        692, 297, 676.0 / 2, 221
     )
     
     on(:mouse_down) do |event|
