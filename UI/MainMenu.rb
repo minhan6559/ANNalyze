@@ -1,31 +1,31 @@
-require_relative 'Events.rb'
-require_relative 'BuildingScreen.rb'
 
-def render_main_menu()
-    main_menu_background = Image.new(
+
+def render_main_menu(screen)
+    clear()
+
+    Image.new(
         './images/MainMenu/Main_menu_background.png',
         x: 0, y: 0
     )
 
-    events = []
-    events << create_button(
+    build_btn = create_button(
         './images/MainMenu/Build_button.png',
-        221, 297, 676.0 / 2, 221
+        221, 297, 676.0 / 2, 221, ScreenType::MAIN_MENU
     )
     
-    events << create_button(
+    infer_btn = create_button(
         './images/MainMenu/Inference_button.png',
-        692, 297, 676.0 / 2, 221
+        692, 297, 676.0 / 2, 221, ScreenType::MAIN_MENU
     )
     
-    events << on(:mouse_down) do |event|
+    on(:mouse_down) do |event|
         x, y = event.x, event.y
-        case event.button
-        when :left
-            if x.between?(221, 221 + 676.0 / 2) && y.between?(297, 297 + 221)
-                render_building_screen(events)
-            elsif x.between?(692, 692 + 676.0 / 2) && y.between?(297, 297 + 221)
-
+        case screen.current_type
+        when ScreenType::MAIN_MENU
+            if is_clicked?(build_btn, event)
+                screen.current_type = ScreenType::BUILDING_SCREEN
+            elsif is_clicked?(infer_btn, event)
+                puts "Inference button clicked!"
             end
         end
     end
