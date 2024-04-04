@@ -2,7 +2,7 @@
 
 def render_main_menu(screen)
     clear()
-
+    
     Image.new(
         './images/MainMenu/Main_menu_background.png',
         x: 0, y: 0
