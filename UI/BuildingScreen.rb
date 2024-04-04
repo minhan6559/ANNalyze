@@ -16,7 +16,7 @@ def render_building_screen(screen)
     )
 
     home_btn = create_button(
-        'images\BuildingScreen\Home_button.png',
+        './images/BuildingScreen/Home_button.png',
         1171, 10, 55, 47, screen, ScreenType::BUILDING_SCREEN
     )
 
