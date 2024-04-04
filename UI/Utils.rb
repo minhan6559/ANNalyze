@@ -17,7 +17,6 @@ def create_button(file_path, x, y, width, height, screen, screen_type)
             x_mouse, y_mouse = event.x, event.y
             if x_mouse.between?(x, x + width) and y_mouse.between?(y, y + height)
                 btn.play(animation: :hover)
-                p "hover"
             else
                 btn.play(animation: :not_hover)
             end

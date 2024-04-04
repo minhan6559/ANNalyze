@@ -36,6 +36,7 @@ def start_window()
             prev_screen = screen.current_type
         end
     end
+
     # create_button('./images/BuildingScreen/Start_button.png', 221, 297, 266.0 /2, 58)
     show()
 end
