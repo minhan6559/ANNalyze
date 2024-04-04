@@ -1,22 +1,26 @@
-def create_button(file_path, x, y, width, height)
+def create_button(file_path, x, y, width, height, screen, screen_type)
     btn = Sprite.new(
         file_path,
         x: x, y: y,
         clip_width: width,
         time: 150,
         animations: {
-            not_hover: 1..1,
-            hover: 0..0
+            not_hover: 0..0,
+            hover: 1..1
         },
         loop: true
     )
 
     on :mouse_move do |event|
-        x_mouse, y_mouse = event.x, event.y
-        if x_mouse.between?(x, x + width) and y_mouse.between?(y, y + height)
-            btn.play animation: :not_hover
-        else
-            btn.play(animation: :hover)
+        case screen.current_type
+        when screen_type
+            x_mouse, y_mouse = event.x, event.y
+            if x_mouse.between?(x, x + width) and y_mouse.between?(y, y + height)
+                btn.play(animation: :hover)
+                p "hover"
+            else
+                btn.play(animation: :not_hover)
+            end
         end
     end
 
