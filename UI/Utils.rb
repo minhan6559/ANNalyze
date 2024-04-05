@@ -1,4 +1,4 @@
-def create_button(file_path, x, y, width, height, screen, screen_type)
+def create_button(file_path, x, y, width, height, cur_screen, screen_type)
     btn = Sprite.new(
         file_path,
         x: x, y: y,
@@ -11,8 +11,8 @@ def create_button(file_path, x, y, width, height, screen, screen_type)
         loop: true
     )
 
-    on :mouse_move do |event|
-        case screen.current_type
+    cur_screen.mouse_events << on(:mouse_move) do |event|
+        case cur_screen.type
         when screen_type
             x_mouse, y_mouse = event.x, event.y
             if x_mouse.between?(x, x + width) and y_mouse.between?(y, y + height)
@@ -24,6 +24,19 @@ def create_button(file_path, x, y, width, height, screen, screen_type)
     end
 
     return btn
+end
+
+def create_text_box(x, y, width, height, default_value)
+    text_box = InputBox.new(
+        x: x, y: y,
+        value: default_value.to_s,
+        height: height, length: width,
+        size: 20,
+        color: 'white', inactiveTextColor: 'black',
+        activeColor: 'white', activeTextColor: 'black'
+    )
+
+    return text_box
 end
 
 def remove_all_events(events)

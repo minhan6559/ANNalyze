@@ -1,6 +1,6 @@
 
 
-def render_main_menu(screen)
+def render_main_menu(cur_screen)
     clear()
     
     Image.new(
@@ -10,20 +10,20 @@ def render_main_menu(screen)
 
     build_btn = create_button(
         './images/MainMenu/Build_button.png',
-        221, 297, 676.0 / 2, 221, screen, ScreenType::MAIN_MENU
+        221, 297, 676.0 / 2, 221, cur_screen, ScreenType::MAIN_MENU
     )
     
     infer_btn = create_button(
         './images/MainMenu/Inference_button.png',
-        692, 297, 676.0 / 2, 221, screen, ScreenType::MAIN_MENU
+        692, 297, 676.0 / 2, 221, cur_screen, ScreenType::MAIN_MENU
     )
     
-    on(:mouse_down) do |event|
+    cur_screen.mouse_events << on(:mouse_down) do |event|
         x, y = event.x, event.y
-        case screen.current_type
+        case cur_screen.type
         when ScreenType::MAIN_MENU
             if is_clicked?(build_btn, event)
-                screen.current_type = ScreenType::BUILDING_SCREEN
+                change_screen(cur_screen, ScreenType::BUILDING_SCREEN)
             elsif is_clicked?(infer_btn, event)
                 puts "Inference button clicked!"
             end

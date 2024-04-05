@@ -9,11 +9,18 @@ module ScreenType
     BUILDING_SCREEN = 1
 end
 
-class Screen
-    attr_accessor :current_type
+class CurrentScreen
+    attr_accessor :type, :render_again, :mouse_events
     def initialize()
-        @current_type = ScreenType::MAIN_MENU
+        @type = ScreenType::MAIN_MENU
+        @render_again = true
+        @mouse_events = []
     end
+end
+
+def change_screen(cur_screen, new_screen)
+    cur_screen.type = new_screen
+    cur_screen.render_again = true
 end
 
 def start_window()
@@ -22,21 +29,26 @@ def start_window()
     set height: 720
     set background: "#252526"
 
-    prev_screen = nil
-    screen = Screen.new()
+    cur_screen = CurrentScreen.new()
+
+    building_screen = BuildingScreen.new()
 
     update do
-        if prev_screen != screen.current_type
-            case screen.current_type
+        if cur_screen.render_again
+            cur_screen.render_again = false
+            cur_screen.mouse_events = remove_all_events(cur_screen.mouse_events)
+            case cur_screen.type
             when ScreenType::MAIN_MENU
-                render_main_menu(screen)
+                render_main_menu(cur_screen)
             when ScreenType::BUILDING_SCREEN
-                render_building_screen(screen)
+                render_building_screen(cur_screen, building_screen)
             end
-            prev_screen = screen.current_type
         end
     end
 
-    # create_button('./images/BuildingScreen/Start_button.png', 221, 297, 266.0 /2, 58)
+    # create_button(
+    #     './images/BuildingScreen/Remove_button.png', 
+    #     221, 297, 104.0 /2, 32, cur_screen, ScreenType::MAIN_MENU
+    # )
     show()
 end
