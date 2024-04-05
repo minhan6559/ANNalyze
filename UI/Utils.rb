@@ -40,3 +40,11 @@ def is_clicked?(btn, event)
     x_mouse, y_mouse = event.x, event.y
     return (event.button == :left and x_mouse.between?(btn.x, btn.x + btn.clip_width) and y_mouse.between?(btn.y, btn.y + btn.clip_height))
 end
+
+def max(*values)
+    values.max
+end
+
+def min(*values)
+    values.min
+end

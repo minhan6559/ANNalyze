@@ -2,21 +2,22 @@ require 'numo/narray'
 require 'ruby2d'
 require 'savio'
 require 'benchmark'
-require_relative '../ANN_algorithms/Model'
+require_relative '../ANN/Model'
+require_relative '../UI/Utils'
 
 if __FILE__ == $0
-    set title: "MNIST Inferencer"
+    set title: "MNIST"
     set width: 1250
     set height: 720
     
     set background: "#252526"
     
     input = Numo::DFloat.zeros(784, 1)
-    model = load_model("full_train_model_128_256")
+    model = load_model("full_train_model_256_128")
     outputText = nil
 
     28.times do |i|
-        28.times do |j|
+        28.times do |j| 
             x = j * 16
             y = i * 16
             Square.new(x: x, y: y, size: 15, color: 'black')
@@ -24,23 +25,29 @@ if __FILE__ == $0
     end
     
     start_btn = Sprite.new(
-        './images/StartButton.png',
+        './images/BuildingScreen/Start_button.png',
         x: 120, y: 460,
-        clip_width: 422/2,
+        clip_width: 133,
         time: 150,
         animations: {
-            not_hover: 1..1,
-            hover: 0..0
+            not_hover: 0..0,
+            hover: 1..1
         }
     )
-    
-    clear()
 
-    on :key_held do |event|
+    mouse_released = true
+    on :mouse_down do |event|
+        mouse_released = false
+    end
+
+    on :mouse_up do |event|
+        mouse_released = true
+    end
+
+    on :mouse_move do |event|
         x = get :mouse_x
         y = get :mouse_y
-    
-        if event.key == 'space' and x < 448 and y < 448
+        if not mouse_released and x < 448 and y < 448
             i = y / 16
             j = x / 16
             input[i * 28 + j, 0] = min(1.0, input[i * 28 + j, 0] + 230.0 / 255.0)
@@ -67,7 +74,7 @@ if __FILE__ == $0
             end
         end
     end
-    
+
     on :mouse_down do |event|
         x = get :mouse_x
         y = get :mouse_y

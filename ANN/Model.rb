@@ -192,25 +192,17 @@ def load_dataset(dataset_name)
     return dataset
 end
 
-def max(*values)
-    values.max
-end
-
-def min(*values)
-    values.min
-end
-
 if __FILE__ == $0
     x_train = load_dataset("full_X_train")
     y_train = load_dataset("full_Y_train")
-    
-    model = ANN.new([128, 256, 10], [Activation::RELU, Activation::RELU, Activation::SOFTMAX], 64)
-    
-    train(x_train, y_train, model, 32)
-    x_val = load_dataset("X_val")
-    y_val = load_dataset("Y_val")
 
-    puts "Accuracy: #{compute_accuracy(forward_propagation(x_val, model)[0], y_val)}"
+    model = ANN.new([256, 128, 10], [Activation::RELU, Activation::RELU, Activation::SOFTMAX], 64)
     
-    # save_model(model, "full_train_model_128_256")
+    # train(x_train, y_train, model, 50)
+    # x_val = load_dataset("X_val")
+    # y_val = load_dataset("Y_val")
+
+    # puts "Accuracy: #{compute_accuracy(forward_propagation(x_val, model)[0], y_val)}"
+    
+    # save_model(model, "full_train_model_256_128")
 end
