@@ -103,7 +103,7 @@ def draw_network_building_screen(cur_screen, building_screen)
 
         # Border
         Image.new(
-            './images/BuildingScreen/Layer_border.png',
+            './images/Network/Layer_border.png',
             x: 115 + i * 180, y: 140
         )
 
@@ -113,7 +113,7 @@ def draw_network_building_screen(cur_screen, building_screen)
         min(num_nodes, 11).times do |j|
             if num_nodes > 11 and j == 5
                 Image.new(
-                    './images/BuildingScreen/More_nodes.png',
+                    './images/Network/More_nodes.png',
                     x: x + 12, y: y_start + j * 40
                 )
             else
@@ -168,7 +168,7 @@ def render_building_screen(cur_screen, building_screen)
     # Background
     Image.new(
         './images/BuildingScreen/Building_screen_background.png',
-        x: 0, y: 0
+        x: 0, y: 0, z: -1
     )
 
     start_btn = create_button(
@@ -177,7 +177,7 @@ def render_building_screen(cur_screen, building_screen)
     )
 
     home_btn = create_button(
-        './images/BuildingScreen/Home_button.png',
+        './images/MainMenu/Home_button.png',
         1171, 10, 55, 47, cur_screen, ScreenType::BUILDING_SCREEN
     )
 
@@ -206,11 +206,7 @@ def render_building_screen(cur_screen, building_screen)
                 building_screen.learning_rate = learning_rate_box.value.to_f
                 building_screen.epochs = epochs_box.value.to_i
 
-                p building_screen.nodes_per_layer
-                p building_screen.activations
-                p building_screen.batch_size
-                p building_screen.learning_rate
-                p building_screen.epochs
+                change_screen(cur_screen, ScreenType::TRAINING_SCREEN)
             end
         end
     end
