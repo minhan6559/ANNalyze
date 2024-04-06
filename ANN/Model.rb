@@ -131,6 +131,9 @@ def update_params_with_gd(model)
     end
 end
 
+def single_step_train(training_screen)
+end
+
 def train(x, y, model, epochs = 1000)
     m = x.shape[1]
     batch_size = model.batch_size
