@@ -30,6 +30,7 @@ def create_text_box(x, y, width, height, default_value)
     text_box = InputBox.new(
         x: x, y: y,
         value: default_value.to_s,
+        displayName: default_value.to_s,
         height: height, length: width,
         size: 20,
         color: 'white', inactiveTextColor: 'black',

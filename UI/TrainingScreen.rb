@@ -10,6 +10,14 @@ class TrainingScreen
     end
 end
 
+def reset_training_screen(training_screen)
+    training_screen.epoch = 0
+    training_screen.cost = 0.0
+    training_screen.accu = 0.0
+    training_screen.need_load_model = true
+    training_screen.done_training = false
+end
+
 def load_dataset()
     x_train = load_bin_dataset("10000_X_train")
     y_train = load_bin_dataset("10000_Y_train")
@@ -30,6 +38,8 @@ def load_building_screen_configs(training_screen, building_screen)
     training_screen.batch_size = building_screen.batch_size
     training_screen.learning_rate = building_screen.learning_rate
     training_screen.epochs = building_screen.epochs
+
+    training_screen.need_load_model = false
 end
 
 def draw_input(input)
@@ -43,7 +53,7 @@ def draw_input(input)
     end
 end
 
-def draw_network_with_input(input, model)
+def draw_network_with_input(input, model, has_input = true)
     draw_input(input)
 
     layer_values = single_input_forward(input, model)
@@ -53,9 +63,9 @@ def draw_network_with_input(input, model)
     x_start = 400 + (481.5 - (nodes_per_layer.length * 180 + 63) / 2.0)
     nodes_per_layer.each_with_index do |num_nodes, i|
         # Layer index
-        y = 74
+        y = 88
         if i == nodes_per_layer.length - 1
-            y = 106
+            y = 120
         end
         layer_text = "Layer #{i + 1}"
         if i == nodes_per_layer.length - 1
@@ -89,9 +99,9 @@ def draw_network_with_input(input, model)
             x_minus = 9
         end
 
-        y = 109
+        y = 123
         if i == nodes_per_layer.length - 1
-            y = 137
+            y = 151
         end
 
         Text.new(
@@ -106,19 +116,19 @@ def draw_network_with_input(input, model)
         if i == nodes_per_layer.length - 1
             Image.new(
                 './images/Network/Output_border.png',
-                x: x_start - 19 + i * 180, y: 170
+                x: x_start - 19 + i * 180, y: 184
             )
         else
             Image.new(
                 './images/Network/Layer_border.png',
-                x: x_start - 19 + i * 180, y: 140
+                x: x_start - 19 + i * 180, y: 154
             )
         end
 
         # Nodes
-        y = 160 + (215 - (min(num_nodes, 11) * 40 - 10) / 2.0)
+        y = 174 + (215 - (min(num_nodes, 11) * 40 - 10) / 2.0)
         if i == nodes_per_layer.length - 1
-            y = 182
+            y = 196
         end
         x = x_start + i * 180
 
@@ -137,7 +147,11 @@ def draw_network_with_input(input, model)
             if num_nodes > 11 and j > 5
                 node_value = layer_values[i][j - 11, 0]
             end
-            opacity = max(node_value.abs, 0.18)
+
+            opacity = 1
+            if has_input
+                opacity = max(node_value.abs, 0.18)
+            end
             Square.new(
                 x: x, y: y + j * 40,
                 size: 30,
@@ -156,10 +170,14 @@ def draw_network_with_input(input, model)
                     if next_num_nodes > 11 and k > 5
                         next_node_value = layer_values[i + 1][k - 11, 0]
                     end
-                    line_opacity = max(0.18, min(node_value.abs, next_node_value.abs))
-                    y2 = 160 + (215 - (min(next_num_nodes, 11) * 40 - 10) / 2.0) + k * 40 + 15
+
+                    line_opacity = 0.2
+                    if has_input
+                        line_opacity = max(0.18, min(node_value.abs, next_node_value.abs))
+                    end
+                    y2 = 174 + (215 - (min(next_num_nodes, 11) * 40 - 10) / 2.0) + k * 40 + 15
                     if i == nodes_per_layer.length - 2
-                        y2 = 182 + k * 40 + 15
+                        y2 = 196 + k * 40 + 15
                     end
                     Line.new(
                         x1: x + 30, y1: y + j * 40 + 15,
@@ -183,9 +201,9 @@ def draw_network_with_input(input, model)
             x_minus = 15
         end
 
-        y = 611
+        y = 625
         if i == nodes_per_layer.length - 1
-            y = 593
+            y = 607
         end
 
         Text.new(
@@ -235,37 +253,56 @@ def draw_training_info(training_screen)
     input = training_screen.x_train[true, random_index].reshape(784, 1)
 
     draw_progress_bar(training_screen)
-    draw_network_with_input(input, training_screen.model)
+    draw_network_with_input(input, training_screen.model, true)
 
     cost = training_screen.cost
     accu = training_screen.accu
 
-    epoch_text = "Epoch: #{training_screen.epoch}"
-    x_minus = 0
-    if epoch_text.length == 9
-        x_minus = 5
-    elsif epoch_text.length >= 10
-        x_minus = 10
+    if not training_screen.done_training
+        epoch_text = "Epoch: #{training_screen.epoch}"
+        x_minus = 0
+        if epoch_text.length == 9
+            x_minus = 5
+        elsif epoch_text.length >= 10
+            x_minus = 10
+        end
+
+        Text.new(
+            epoch_text,
+            x: 135 - x_minus, y: 547,
+            font: './fonts/SF-Pro-Display-Semibold.otf',
+            size: 25,
+            color: 'white'
+        )
+
+        Text.new(
+            "Cost: #{cost.round(6).to_s[0...5]}",
+            x: 120, y: 587,
+            font: './fonts/SF-Pro-Display-Semibold.otf',
+            size: 25,
+            color: 'white'
+        )
+    else
+        Text.new(
+            "Model name: ",
+            x: 27, y: 587,
+            font: './fonts/SF-Pro-Display-Semibold.otf',
+            size: 25,
+            color: 'white'
+        )
+    end
+
+    y_accu = 625
+    if training_screen.done_training
+        y_accu = 547
+    end
+    accu_text = "Accuracy: #{accu.round(2)}"
+    if accu_text.length < 14
+        accu_text += "0" * (14 - accu_text.length)
     end
     Text.new(
-        epoch_text,
-        x: 135 - x_minus, y: 547,
-        font: './fonts/SF-Pro-Display-Semibold.otf',
-        size: 25,
-        color: 'white'
-    )
-
-    Text.new(
-        "Cost: #{cost.round(6).to_s[0...5]}",
-        x: 120, y: 587,
-        font: './fonts/SF-Pro-Display-Semibold.otf',
-        size: 25,
-        color: 'white'
-    )
-
-    Text.new(
-        "Accuracy: #{accu.round(3).to_s[0...4]}",
-        x: 99, y: 625,
+        accu_text,
+        x: 99, y: y_accu,
         font: './fonts/SF-Pro-Display-Semibold.otf',
         size: 25,
         color: 'white'
@@ -281,21 +318,64 @@ def render_training_screen(cur_screen, training_screen)
         './images/TrainingScreen/Nav_bar.png',
         x: 0, y: 0, z: -1
     )
-
-    if training_screen.done_training
-        home_btn = create_button(
-            './images/MainMenu/Home_button.png',
-            1171, 10, 55, 47, cur_screen, ScreenType::TRAINING_SCREEN
-        )
-    end
-
+    
     draw_training_info(training_screen)
+
     if not training_screen.done_training
         training_screen.cost, training_screen.accu = single_step_train(training_screen)
         training_screen.epoch += 1
         cur_screen.render_again = true
         if training_screen.epoch == training_screen.epochs
             training_screen.done_training = true
+        end
+    else
+        home_btn = create_button(
+            './images/MainMenu/Home_button.png',
+            1171, 10, 55, 47, cur_screen, ScreenType::TRAINING_SCREEN
+        )
+
+        save_btn = create_button(
+            './images/TrainingScreen/Save_button.png',
+            88, 630, 186, 45, cur_screen, ScreenType::TRAINING_SCREEN
+        )
+
+        model_name_box = InputBox.new(
+            x: 175, y: 590,
+            displayName: "model_name",
+            height: 200, length: 160,
+            size: 20,
+            color: 'white', inactiveTextColor: 'black',
+            activeColor: 'white', activeTextColor: 'black'
+        )
+
+        success_text = nil
+
+        cur_screen.mouse_events << on(:mouse_down) do |event|
+            case cur_screen.type
+            when ScreenType::TRAINING_SCREEN
+                if is_clicked?(home_btn, event)
+                    change_screen(cur_screen, ScreenType::MAIN_MENU)
+                    reset_training_screen(training_screen)
+                end
+                if is_clicked?(save_btn, event)
+                    model_name = model_name_box.value
+                    if model_name.nil? or model_name.empty?
+                        model_name = model_name_box.displayName
+                    end
+                    save_model(training_screen.model, model_name)
+
+                    if not success_text.nil?
+                        success_text.remove()
+                    end
+
+                    success_text = Text.new(
+                        "Saved as \"#{model_name}\"",
+                        x: 120 - model_name.length * 4, y: 680, size: 20,
+                        font: './fonts/SF-Pro-Display-Semibold.otf',
+                        color: 'teal'
+                    )
+                end
+            end
         end
     end
 

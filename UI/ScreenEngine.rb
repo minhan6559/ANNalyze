@@ -3,12 +3,16 @@ require 'savio'
 require_relative 'MainMenu.rb'
 require_relative 'BuildingScreen.rb'
 require_relative 'TrainingScreen.rb'
+require_relative 'InferenceScreen.rb'
+require_relative 'LoadingModelScreen.rb'
 require_relative 'Utils.rb'
 
 module ScreenType
     MAIN_MENU = 0
     BUILDING_SCREEN = 1
     TRAINING_SCREEN = 2
+    INFERERENCE_SCREEN = 3
+    LOADING_MODEL_SCREEN = 4
 end
 
 class CurrentScreen
@@ -35,6 +39,8 @@ def start_window()
 
     building_screen = BuildingScreen.new()
     training_screen = TrainingScreen.new()
+    inference_screen = InferenceScreen.new()
+    loading_model_screen = LoadingModelScreen.new()
 
     update do
         if cur_screen.render_again
@@ -48,9 +54,15 @@ def start_window()
             when ScreenType::TRAINING_SCREEN
                 if training_screen.need_load_model
                     load_building_screen_configs(training_screen, building_screen)
-                    training_screen.need_load_model = false
                 end
                 render_training_screen(cur_screen, training_screen)
+            when ScreenType::INFERERENCE_SCREEN
+                if inference_screen.need_load_model
+                    load_model_from_loading_screen(inference_screen, loading_model_screen)
+                end
+                render_inference_screen(cur_screen, inference_screen)
+            when ScreenType::LOADING_MODEL_SCREEN
+                render_loading_model_screen(cur_screen, loading_model_screen)
             end
         end
     end

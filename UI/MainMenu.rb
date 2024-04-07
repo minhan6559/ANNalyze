@@ -25,7 +25,7 @@ def render_main_menu(cur_screen)
             if is_clicked?(build_btn, event)
                 change_screen(cur_screen, ScreenType::BUILDING_SCREEN)
             elsif is_clicked?(infer_btn, event)
-                puts "Inference button clicked!"
+                change_screen(cur_screen, ScreenType::LOADING_MODEL_SCREEN)
             end
         end
     end
