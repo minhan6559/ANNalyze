@@ -1,5 +1,5 @@
-require_relative './ANN/Model.rb'
-require_relative './UI/ScreenEngine.rb'
+require_relative './lib/ANN/Model.rb'
+require_relative './lib/UI/ScreenEngine.rb'
 
 if __FILE__ == $0
     start_window()
