@@ -1,7 +1,7 @@
 class TrainingScreen
-    attr_accessor :x_train, :y_train, :x_val, :y_val, :model, :batch_size, :learning_rate, :epochs, :epoch, :need_load_model, :done_training, :cost, :accu
+    attr_accessor :x_train, :y_train, :x_test, :y_test, :model, :batch_size, :learning_rate, :epochs, :epoch, :need_load_model, :done_training, :cost, :accu
     def initialize()
-        @x_train, @y_train, @x_val, @y_val = load_dataset()
+        @x_train, @y_train, @x_test, @y_test = load_dataset()
         @epoch = 0
         @cost = 0.0
         @accu = 0.0
@@ -21,10 +21,10 @@ end
 def load_dataset()
     x_train = load_bin_dataset("10000_X_train")
     y_train = load_bin_dataset("10000_Y_train")
-    x_val = load_bin_dataset("X_val")
-    y_val = load_bin_dataset("Y_val")
+    x_test = load_bin_dataset("X_val")
+    y_test = load_bin_dataset("Y_val")
 
-    return x_train, y_train, x_val, y_val
+    return x_train, y_train, x_test, y_test
 end
 
 def load_building_screen_configs(training_screen, building_screen)

@@ -88,8 +88,8 @@ def compute_accuracy(aL, y)
 end
 
 def get_accuracy(training_screen)
-    aL, _ = forward_propagation(training_screen.x_val, training_screen.model)
-    return compute_accuracy(aL, training_screen.y_val)
+    aL, _ = forward_propagation(training_screen.x_test, training_screen.model)
+    return compute_accuracy(aL, training_screen.y_test)
 end
 
 def single_layer_backward_propagation(dA_cur, w_cur, b_cur, z_cur, a_prev, activation=Activation::RELU)
@@ -215,11 +215,11 @@ if __FILE__ == $0
     model = ANN.new([128, 32, 10], [Activation::RELU, Activation::RELU, Activation::SOFTMAX], 64)
     
     train(x_train, y_train, model, 100)
-    x_val = load_dataset("X_val")
-    y_val = load_dataset("Y_val")
+    x_test = load_dataset("X_val")
+    y_test = load_dataset("Y_val")
 
-    puts "Accuracy: #{compute_accuracy(forward_propagation(x_val, model)[0], y_val)}"
-    puts "Accuracy: #{compute_accuracy(forward_propagation(x_val, model)[0], y_val)}"
+    puts "Accuracy: #{compute_accuracy(forward_propagation(x_test, model)[0], y_test)}"
+    puts "Accuracy: #{compute_accuracy(forward_propagation(x_test, model)[0], y_test)}"
     
     save_model(model, "full_train_model_256_128")
 end
