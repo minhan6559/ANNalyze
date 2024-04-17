@@ -42,6 +42,47 @@ def load_building_screen_configs(training_screen, building_screen)
     training_screen.need_load_model = false
 end
 
+def get_accuracy(training_screen)
+    aL, _ = forward_prop(training_screen.x_test, training_screen.model)
+    return compute_accuracy(aL, training_screen.y_test)
+end
+
+def single_step_train(training_screen)
+    m = training_screen.x_train.shape[1]
+    batch_size = training_screen.batch_size
+
+    permutated_indexes = (0...m).to_a.shuffle
+    shuffled_X = training_screen.x_train[true, permutated_indexes].reshape(784, m)
+    shuffled_Y = training_screen.y_train[true, permutated_indexes].reshape(10, m)
+
+    total_cost = 0
+    num_complete_minibatches = (m / batch_size).to_i
+    for k in 0...num_complete_minibatches
+        mini_batch_X = shuffled_X[true, k * batch_size...(k+1) * batch_size]
+        mini_batch_Y = shuffled_Y[true, k * batch_size...(k+1) * batch_size]
+
+        aL, cache = forward_prop(mini_batch_X, training_screen.model)
+        total_cost += compute_cost(aL, mini_batch_Y)
+        grads = back_prop(aL, mini_batch_Y, cache, training_screen.model)
+        update_params_with_gd(training_screen.model, training_screen.learning_rate, grads)
+    end
+
+    if m % batch_size != 0
+        mini_batch_X = shuffled_X[true, num_complete_minibatches * batch_size...m]
+        mini_batch_Y = shuffled_Y[true, num_complete_minibatches * batch_size...m]
+
+        aL, cache = forward_prop(mini_batch_X, training_screen.model)
+        total_cost += compute_cost(aL, mini_batch_Y)
+        grads = back_prop(aL, mini_batch_Y, cache, training_screen.model)
+        update_params_with_gd(training_screen.model, training_screen.learning_rate, grads)
+    end
+    
+    avg_cost = total_cost / (num_complete_minibatches + (m % batch_size != 0 ? 1 : 0))
+    
+    accu = get_accuracy(training_screen)
+    return avg_cost, accu
+end
+
 def draw_input(input)
     28.times do |i|
         28.times do |j| 

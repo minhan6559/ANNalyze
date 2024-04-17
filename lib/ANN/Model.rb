@@ -24,7 +24,7 @@ def initialize_params(nodes_per_layer)
     return params
 end
 
-def single_layer_forward_propagation(a_prev, w, b, activation=Activation::RELU)
+def forward_prop_one_layer(a_prev, w, b, activation=Activation::RELU)
     z = w.dot(a_prev) + b
     case activation
     when Activation::SIGMOID
@@ -43,7 +43,7 @@ def single_layer_forward_propagation(a_prev, w, b, activation=Activation::RELU)
     return a, z
 end
 
-def forward_propagation(x, model)
+def forward_prop(x, model)
     cache = {}
     a_cur = x
 
@@ -53,7 +53,7 @@ def forward_propagation(x, model)
         activation = model.activations[i]
         w = model.params["W#{layer_idx}"]
         b = model.params["b#{layer_idx}"]
-        a_cur, z = single_layer_forward_propagation(a_prev, w, b, activation)
+        a_cur, z = forward_prop_one_layer(a_prev, w, b, activation)
         cache["A#{i}"] = a_prev
         cache["Z#{layer_idx}"] = z
     end
@@ -70,7 +70,7 @@ def single_input_forward(x, model)
         activation = model.activations[i]
         w = model.params["W#{layer_idx}"]
         b = model.params["b#{layer_idx}"]
-        a_cur, z = single_layer_forward_propagation(a_prev, w, b, activation)
+        a_cur, z = forward_prop_one_layer(a_prev, w, b, activation)
         layer_values << a_cur
     end
     return layer_values
@@ -87,12 +87,7 @@ def compute_accuracy(aL, y)
     return (_aL.eq(_y)).count.to_f / y.shape[1]
 end
 
-def get_accuracy(training_screen)
-    aL, _ = forward_propagation(training_screen.x_test, training_screen.model)
-    return compute_accuracy(aL, training_screen.y_test)
-end
-
-def single_layer_backward_propagation(dA_cur, w_cur, b_cur, z_cur, a_prev, activation=Activation::RELU)
+def back_prop_one_layer(dA_cur, w_cur, z_cur, a_prev, activation=Activation::RELU)
     m = a_prev.shape[1].to_f
     case activation
     when Activation::SIGMOID
@@ -117,7 +112,7 @@ def single_layer_backward_propagation(dA_cur, w_cur, b_cur, z_cur, a_prev, activ
 end
 
 # softmax regression deep neural network backward propagation
-def backward_propagation(aL, y, cache, model)
+def back_prop(aL, y, cache, model)
     dA_prev = aL - y
     l = model.nodes_per_layer.length
     grads = {}
@@ -131,10 +126,9 @@ def backward_propagation(aL, y, cache, model)
         z_cur = cache["Z#{layer_idx_cur}"]
         
         w_cur = model.params["W#{layer_idx_cur}"]
-        b_cur = model.params["b#{layer_idx_cur}"]
         
-        dA_prev, dW_cur, db_cur = single_layer_backward_propagation(
-            dA_cur, w_cur, b_cur, z_cur, a_prev, activ_function_cur)
+        dA_prev, dW_cur, db_cur = back_prop_one_layer(
+            dA_cur, w_cur, z_cur, a_prev, activ_function_cur)
         
         grads["dW#{layer_idx_cur}"] = dW_cur
         grads["db#{layer_idx_cur}"] = db_cur
@@ -150,44 +144,8 @@ def update_params_with_gd(model, learning_rate, grads)
     end
 end
 
-def single_step_train(training_screen)
-    m = training_screen.x_train.shape[1]
-    batch_size = training_screen.batch_size
-
-    permutated_indexes = (0...m).to_a.shuffle
-    shuffled_X = training_screen.x_train[true, permutated_indexes].reshape(784, m)
-    shuffled_Y = training_screen.y_train[true, permutated_indexes].reshape(10, m)
-
-    total_cost = 0
-    num_complete_minibatches = (m / batch_size).to_i
-    for k in 0...num_complete_minibatches
-        mini_batch_X = shuffled_X[true, k * batch_size...(k+1) * batch_size]
-        mini_batch_Y = shuffled_Y[true, k * batch_size...(k+1) * batch_size]
-
-        aL, cache = forward_propagation(mini_batch_X, training_screen.model)
-        total_cost += compute_cost(aL, mini_batch_Y)
-        grads = backward_propagation(aL, mini_batch_Y, cache, training_screen.model)
-        update_params_with_gd(training_screen.model, training_screen.learning_rate, grads)
-    end
-
-    if m % batch_size != 0
-        mini_batch_X = shuffled_X[true, num_complete_minibatches * batch_size...m]
-        mini_batch_Y = shuffled_Y[true, num_complete_minibatches * batch_size...m]
-
-        aL, cache = forward_propagation(mini_batch_X, training_screen.model)
-        total_cost += compute_cost(aL, mini_batch_Y)
-        grads = backward_propagation(aL, mini_batch_Y, cache, training_screen.model)
-        update_params_with_gd(training_screen.model, training_screen.learning_rate, grads)
-    end
-    
-    avg_cost = total_cost / (num_complete_minibatches + (m % batch_size != 0 ? 1 : 0))
-    
-    accu = get_accuracy(training_screen)
-    return avg_cost, accu
-end
-
 def predict(x, model)
-    aL = forward_propagation(x, model)[0]
+    aL = forward_prop(x, model)[0]
     return aL.argmax
 end
 
@@ -218,8 +176,8 @@ if __FILE__ == $0
     x_test = load_dataset("X_val")
     y_test = load_dataset("Y_val")
 
-    puts "Accuracy: #{compute_accuracy(forward_propagation(x_test, model)[0], y_test)}"
-    puts "Accuracy: #{compute_accuracy(forward_propagation(x_test, model)[0], y_test)}"
+    puts "Accuracy: #{compute_accuracy(forward_prop(x_test, model)[0], y_test)}"
+    puts "Accuracy: #{compute_accuracy(forward_prop(x_test, model)[0], y_test)}"
     
     save_model(model, "full_train_model_256_128")
 end
