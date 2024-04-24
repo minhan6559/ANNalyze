@@ -79,7 +79,7 @@ def render_inference_screen(cur_screen, inference_screen)
     draw_network_with_input(inference_screen.input, inference_screen.model, inference_screen.has_input)
     draw_input_with_mouse(cur_screen, inference_screen)
     
-    output = forward_propagation(inference_screen.input, inference_screen.model)[0].argmax(axis: 0)[0]
+    output = forward_prop(inference_screen.input, inference_screen.model)[0].argmax(axis: 0)[0]
     if inference_screen.has_input
         Text.new(
             "Predicted: #{output}",
