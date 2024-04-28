@@ -1,9 +1,9 @@
 module Activation
-    SIGMOID = 1
-    RELU = 2
-    TANH = 3
-    SOFTPLUS = 4
-    SOFTMAX = 5
+    SIGMOID = 0
+    RELU = 1
+    TANH = 2
+    SOFTPLUS = 3
+    SOFTMAX = 4
 end
 
 def sigmoid(z)

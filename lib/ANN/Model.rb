@@ -111,7 +111,6 @@ def back_prop_one_layer(dA_cur, w_cur, z_cur, a_prev, activation=Activation::REL
     return dA_prev, dW_cur, db_cur
 end
 
-# softmax regression deep neural network backward propagation
 def back_prop(aL, y, cache, model)
     dA_prev = aL - y
     l = model.nodes_per_layer.length
@@ -165,8 +164,8 @@ def load_bin_dataset(dataset_name)
 end
 
 if __FILE__ == $0
-    x_train = load_dataset("10000_X_train")
-    y_train = load_dataset("10000_Y_train")
+    x_train = load_bin_dataset("10000_X_train")
+    y_train = load_bin_dataset("10000_Y_train")
 
     p y_train.sum(axis: 1)
 

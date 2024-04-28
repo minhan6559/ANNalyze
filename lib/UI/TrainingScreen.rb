@@ -1,5 +1,7 @@
 class TrainingScreen
-    attr_accessor :x_train, :y_train, :x_test, :y_test, :model, :batch_size, :learning_rate, :epochs, :epoch, :need_load_model, :done_training, :cost, :accu
+    attr_accessor :x_train, :y_train, :x_test, :y_test, 
+                :model, :batch_size, :learning_rate, :epochs, :epoch, 
+                :need_load_model, :done_training, :cost, :accu
     def initialize()
         @x_train, @y_train, @x_test, @y_test = load_dataset()
         @epoch = 0

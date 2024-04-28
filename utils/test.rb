@@ -1,5 +1,7 @@
 require 'ruby2d'
 
-a = [1, 2, 3, 4, 5]
+a = Rectangle.new(x: 10, y: 20, width: 100, height: 150, color: 'blue')
 
-p a[-1]
+puts a.x2
+
+show

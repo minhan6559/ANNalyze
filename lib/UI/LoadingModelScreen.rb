@@ -38,7 +38,7 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
         min(6, model_list.length - start_index).times do |i|
             file_name_text = Text.new(
                 model_list[start_index + i][0...-4],
-                x: 397, y: 225 + 62 * i, z: 99,
+                x: 397, y: 220 + 62 * i, z: 99,
                 size: 25, color: 'white'
             )
 
@@ -59,7 +59,7 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
         if start_index > 0
             left_btn = create_button(
                 './images/LoadingModelScreen/Left_button.png',
-                320, 341, 37, 38, cur_screen, ScreenType::LOADING_MODEL_SCREEN
+                320, 343, 37, 38, cur_screen, ScreenType::LOADING_MODEL_SCREEN
             )
 
             cur_screen.mouse_events << on(:mouse_down) do |event|
@@ -73,7 +73,7 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
         if start_index + 6 < model_list.length
             right_btn = create_button(
                 './images/LoadingModelScreen/Right_button.png',
-                889, 341, 37, 38, cur_screen, ScreenType::LOADING_MODEL_SCREEN
+                889, 343, 37, 38, cur_screen, ScreenType::LOADING_MODEL_SCREEN
             )
 
             cur_screen.mouse_events << on(:mouse_down) do |event|
