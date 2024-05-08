@@ -1,7 +1,5 @@
 require_relative 'Activations'
-require_relative 'Optimizers'
 require 'numo/narray'
-require 'rover-df'
 
 # Artificial Neural Network class
 class ANN
