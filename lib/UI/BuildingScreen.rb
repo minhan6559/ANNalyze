@@ -1,11 +1,12 @@
 class BuildingScreen
-    attr_accessor :nodes_per_layer, :activations, :batch_size, :learning_rate, :epochs
+    attr_accessor :nodes_per_layer, :activations, :batch_size, :learning_rate, :epochs, :error_message
     def initialize()
         @nodes_per_layer = []
         @activations = []
         @batch_size = 64
         @learning_rate = 0.05
         @epochs = 20
+        @error_message = nil
     end
 end
 
@@ -154,6 +155,7 @@ def draw_network_building_screen(cur_screen, building_screen)
                 if is_clicked?(remove_btn, event)
                     building_screen.nodes_per_layer.delete_at(i)
                     building_screen.activations.delete_at(i)
+                    building_screen.error_message = nil
                     cur_screen.render_again = true
                 end
             end
@@ -192,21 +194,72 @@ def render_building_screen(cur_screen, building_screen)
     learning_rate_box = create_text_box(1057, 471, 130, 200, building_screen.learning_rate)
     epochs_box = create_text_box(1057, 522, 130, 200, building_screen.epochs)
 
+    error_message = building_screen.error_message
+    if error_message
+        Text.new(
+            error_message,
+            x: 1049 - error_message.length * 5, y: 671, size: 20,
+            font: './fonts/SF-Pro-Display-Semibold.otf',
+            color: 'red'
+        )
+    end
+
     cur_screen.mouse_events << on(:mouse_down) do |event|
         case cur_screen.type
         when ScreenType::BUILDING_SCREEN
             if is_clicked?(home_btn, event)
                 change_screen(cur_screen, ScreenType::MAIN_MENU)
-            elsif is_clicked?(add_btn, event) and building_screen.nodes_per_layer.length < 4
-                building_screen.nodes_per_layer << num_nodes_box.value.to_i
-                building_screen.activations << get_selected_activation(activations_btn)
-                cur_screen.render_again = true
-            elsif is_clicked?(start_btn, event)
-                building_screen.batch_size = batch_size_box.value.to_i
-                building_screen.learning_rate = learning_rate_box.value.to_f
-                building_screen.epochs = epochs_box.value.to_i
+            # Add new layer
+            elsif is_clicked?(add_btn, event)
+                num_nodes = Integer(num_nodes_box.value) rescue false
+                activation = get_selected_activation(activations_btn)
 
-                change_screen(cur_screen, ScreenType::TRAINING_SCREEN)
+                error_message = nil
+                if not (num_nodes and num_nodes > 0)
+                    error_message = "Invalid number of nodes"
+                end
+
+                if building_screen.nodes_per_layer.length == 4
+                    error_message = "Maximum number of layers is 4"
+                end
+
+                if not error_message
+                    building_screen.nodes_per_layer << num_nodes
+                    building_screen.activations << activation
+                end
+
+                building_screen.error_message = error_message
+                cur_screen.render_again = true
+                
+            # Start training
+            elsif is_clicked?(start_btn, event)
+                batch_size = Integer(batch_size_box.value) rescue false
+                learning_rate = Float(learning_rate_box.value) rescue false
+                epochs = Integer(epochs_box.value) rescue false
+
+                error_message = nil
+
+                if not (batch_size and batch_size > 0)
+                    error_message = "Invalid batch size"
+                end
+
+                if not (learning_rate and learning_rate > 0)
+                    error_message = "Invalid learning rate"
+                end
+
+                if not (epochs and epochs > 0)
+                    error_message = "Invalid number of epochs"
+                end
+
+                if not error_message
+                    building_screen.batch_size = batch_size
+                    building_screen.learning_rate = learning_rate
+                    building_screen.epochs = epochs
+                    change_screen(cur_screen, ScreenType::TRAINING_SCREEN)
+                end
+
+                building_screen.error_message = error_message
+                cur_screen.render_again = true
             end
         end
     end

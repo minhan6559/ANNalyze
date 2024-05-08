@@ -1,7 +1,6 @@
-require 'ruby2d'
-
-a = Rectangle.new(x: 10, y: 20, width: 100, height: 150, color: 'blue')
-
-puts a.x2
-
-show
+print "Integer please: " 
+input = gets
+user_num=Integer(input) rescue false 
+if user_num 
+    puts "You entered #{user_num}"
+end
