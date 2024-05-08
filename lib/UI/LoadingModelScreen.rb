@@ -38,7 +38,7 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
         min(6, model_list.length - start_index).times do |i|
             file_name_text = Text.new(
                 model_list[start_index + i][0...-4],
-                x: 397, y: 220 + 62 * i, z: 99,
+                x: 397, y: 222 + 62 * i, z: 99,
                 size: 25, color: 'white'
             )
 
