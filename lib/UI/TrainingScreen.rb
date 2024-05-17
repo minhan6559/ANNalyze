@@ -23,8 +23,8 @@ end
 def load_dataset()
     x_train = load_bin_dataset("10000_X_train")
     y_train = load_bin_dataset("10000_Y_train")
-    x_test = load_bin_dataset("X_val")
-    y_test = load_bin_dataset("Y_val")
+    x_test = load_bin_dataset("X_test")
+    y_test = load_bin_dataset("Y_test")
 
     return x_train, y_train, x_test, y_test
 end
