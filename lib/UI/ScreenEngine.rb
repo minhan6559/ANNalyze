@@ -67,10 +67,5 @@ def start_window()
         end
     end
 
-    # create_button(
-    #     './images/BuildingScreen/Remove_button.png', 
-    #     221, 297, 104.0 /2, 32, cur_screen, ScreenType::MAIN_MENU
-    # )
-
     show()
 end

@@ -1,5 +1,3 @@
-
-
 def render_main_menu(cur_screen)
     clear()
     
