@@ -12,6 +12,7 @@ class TrainingScreen
     end
 end
 
+# Reset the training screen to the initial state
 def reset_training_screen(training_screen)
     training_screen.epoch = 0
     training_screen.cost = 0.0
@@ -20,6 +21,7 @@ def reset_training_screen(training_screen)
     training_screen.done_training = false
 end
 
+# Load the dataset from the binary files
 def load_dataset()
     x_train = load_bin_dataset("10000_X_train")
     y_train = load_bin_dataset("10000_Y_train")
@@ -29,6 +31,7 @@ def load_dataset()
     return x_train, y_train, x_test, y_test
 end
 
+# Load the configuration from the building screen to the training screen
 def load_building_screen_configs(training_screen, building_screen)
     nodes_per_layer = building_screen.nodes_per_layer.clone
     activations = building_screen.activations.clone
@@ -44,11 +47,13 @@ def load_building_screen_configs(training_screen, building_screen)
     training_screen.need_load_model = false
 end
 
+# Compute the accuracy of the model
 def get_accuracy(training_screen)
     aL, _ = forward_prop(training_screen.x_test, training_screen.model)
     return compute_accuracy(aL, training_screen.y_test)
 end
 
+# Single step of training => Return the cost and accuracy
 def single_step_train(training_screen)
     m = training_screen.x_train.shape[1]
     batch_size = training_screen.batch_size
@@ -59,6 +64,7 @@ def single_step_train(training_screen)
 
     total_cost = 0
     num_complete_minibatches = (m / batch_size).to_i
+    # Loop over all the complete minibatches
     for k in 0...num_complete_minibatches
         mini_batch_X = shuffled_X[true, k * batch_size...(k+1) * batch_size]
         mini_batch_Y = shuffled_Y[true, k * batch_size...(k+1) * batch_size]
@@ -69,6 +75,7 @@ def single_step_train(training_screen)
         update_params_with_gd(training_screen.model, training_screen.learning_rate, grads)
     end
 
+    # If the number of training examples is not divisible by batch_size
     if m % batch_size != 0
         mini_batch_X = shuffled_X[true, num_complete_minibatches * batch_size...m]
         mini_batch_Y = shuffled_Y[true, num_complete_minibatches * batch_size...m]
@@ -85,6 +92,7 @@ def single_step_train(training_screen)
     return avg_cost, accu
 end
 
+# Draw the input
 def draw_input(input)
     28.times do |i|
         28.times do |j| 
@@ -96,6 +104,7 @@ def draw_input(input)
     end
 end
 
+# Draw the network with the input
 def draw_network_with_input(input, model, has_input = true)
     draw_input(input)
 
@@ -259,6 +268,7 @@ def draw_network_with_input(input, model, has_input = true)
     end
 end
 
+# Draw the progress bar
 def draw_progress_bar(training_screen)
     if training_screen.done_training
         Image.new(
@@ -290,6 +300,7 @@ def draw_progress_bar(training_screen)
     end
 end
 
+# Draw the training information
 def draw_training_info(training_screen)
     # Draw input
     random_index = rand(0...training_screen.x_train.shape[1])
@@ -353,6 +364,7 @@ def draw_training_info(training_screen)
 
 end
 
+# Render the training screen
 def render_training_screen(cur_screen, training_screen)
     clear()
 

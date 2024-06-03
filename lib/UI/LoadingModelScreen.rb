@@ -6,11 +6,13 @@ class LoadingModelScreen
     end
 end
 
+# Reset the loading model screen to the initial state
 def reset_loading_model_screen(loading_model_screen)
     loading_model_screen.model_name = ""
     loading_model_screen.start_index = 0
 end
 
+# Render the loading model screen
 def render_loading_model_screen(cur_screen, loading_model_screen)
     clear()
 

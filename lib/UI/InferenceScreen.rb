@@ -9,11 +9,13 @@ class InferenceScreen
     end
 end
 
+# Load model from the loading screen to the inference screen
 def load_model_from_loading_screen(inference_screen, loading_model_screen)
     inference_screen.model = load_model(loading_model_screen.model_name)
     inference_screen.need_load_model = false
 end
 
+# Reset the inference screen to the initial state
 def reset_inference_screen(inference_screen)
     inference_screen.need_load_model = true
     inference_screen.model = nil
@@ -22,6 +24,7 @@ def reset_inference_screen(inference_screen)
     inference_screen.has_input = false
 end
 
+# Use mouse to draw input for the model
 def draw_input_with_mouse(cur_screen, inference_screen)
     cur_screen.mouse_events << on(:mouse_down) do |event|
         inference_screen.mouse_released = false
@@ -67,7 +70,7 @@ def draw_input_with_mouse(cur_screen, inference_screen)
     end
 end
 
-
+# Render the inference screen
 def render_inference_screen(cur_screen, inference_screen)
     clear()
 

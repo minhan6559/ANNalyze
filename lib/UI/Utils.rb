@@ -1,3 +1,5 @@
+# This file contains utility functions that are used in the UI components
+# Create a button with hover effect
 def create_button(file_path, x, y, width, height, cur_screen, screen_type)
     btn = Sprite.new(
         file_path,
@@ -26,6 +28,7 @@ def create_button(file_path, x, y, width, height, cur_screen, screen_type)
     return btn
 end
 
+# Create a text box
 def create_text_box(x, y, width, height, default_value)
     text_box = InputBox.new(
         x: x, y: y,
@@ -40,6 +43,7 @@ def create_text_box(x, y, width, height, default_value)
     return text_box
 end
 
+# Remove all button events
 def remove_all_events(events)
     if events.nil?
         return []
@@ -50,6 +54,7 @@ def remove_all_events(events)
     return []
 end
 
+# Check if a button is clicked
 def is_clicked?(btn, event)
     x_mouse, y_mouse = event.x, event.y
     return (event.button == :left and 

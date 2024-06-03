@@ -10,6 +10,7 @@ class BuildingScreen
     end
 end
 
+# Create radio button for activations
 def create_radio_activations(selected_value = Activation::RELU)
     selected_value = Activation::RELU if selected_value.nil?
     btn_manager = ButtonManager.new(type: 'radio')
@@ -54,18 +55,21 @@ def create_radio_activations(selected_value = Activation::RELU)
     return btn_manager
 end
 
+# Remove radio buttons
 def remove_radio_activations(activations_btn)
     activations_btn.buttons.each do |btn|
         btn.remove
     end
 end
 
+# Get selected activation from the radio buttons
 def get_selected_activation(activations_btn)
     activations_btn.selected.each do |button|
         return button.value.to_i
     end
 end
 
+# Display the layers of the network in the building screen
 def draw_network_building_screen(cur_screen, building_screen)
     building_screen.nodes_per_layer.each_with_index do |num_nodes, i|
         # Layer index
@@ -163,6 +167,7 @@ def draw_network_building_screen(cur_screen, building_screen)
     end
 end
 
+# Render the building screen
 def render_building_screen(cur_screen, building_screen)
     clear()
     draw_network_building_screen(cur_screen, building_screen)
