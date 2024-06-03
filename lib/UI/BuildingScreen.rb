@@ -1,3 +1,6 @@
+# This file contains the code for the building screen of the application
+    
+# Building screen class
 class BuildingScreen
     attr_accessor :nodes_per_layer, :activations, :batch_size, :learning_rate, :epochs, :error_message
     def initialize()
@@ -98,6 +101,7 @@ def draw_network_building_screen(cur_screen, building_screen)
             x_minus = 9
         end
 
+        # Activation name
         Text.new(
             activation_name,
             x: 124 + i * 180 - x_minus, y: 109,
@@ -153,6 +157,7 @@ def draw_network_building_screen(cur_screen, building_screen)
             123 + i * 180, 667, 52, 32, cur_screen, ScreenType::BUILDING_SCREEN
         )
 
+        # Mouse events for the remove button
         cur_screen.mouse_events << on(:mouse_down) do |event|
             case cur_screen.type
             when ScreenType::BUILDING_SCREEN
@@ -178,6 +183,7 @@ def render_building_screen(cur_screen, building_screen)
         x: 0, y: 0, z: -1
     )
 
+    # Start and home buttons
     start_btn = create_button(
         './images/BuildingScreen/Start_button.png',
         981, 598, 133, 58, cur_screen, ScreenType::BUILDING_SCREEN
@@ -193,12 +199,15 @@ def render_building_screen(cur_screen, building_screen)
         './images/BuildingScreen/Add_button.png',
         1138, 186, 64, 68, cur_screen, ScreenType::BUILDING_SCREEN
     )
+
+    # Text boxes and buttons for ANN configs
     activations_btn = create_radio_activations(building_screen.activations[-1] || Activation::RELU)
     num_nodes_box = create_text_box(895, 184, 180, 200, building_screen.nodes_per_layer[-1] || 16)
     batch_size_box = create_text_box(1057, 425, 130, 200, building_screen.batch_size)
     learning_rate_box = create_text_box(1057, 471, 130, 200, building_screen.learning_rate)
     epochs_box = create_text_box(1057, 522, 130, 200, building_screen.epochs)
 
+    # Error message
     error_message = building_screen.error_message
     if error_message
         Text.new(
@@ -209,9 +218,11 @@ def render_building_screen(cur_screen, building_screen)
         )
     end
 
+    # Mouse events
     cur_screen.mouse_events << on(:mouse_down) do |event|
         case cur_screen.type
         when ScreenType::BUILDING_SCREEN
+            # Home button
             if is_clicked?(home_btn, event)
                 change_screen(cur_screen, ScreenType::MAIN_MENU)
             # Add new layer
@@ -235,13 +246,14 @@ def render_building_screen(cur_screen, building_screen)
 
                 building_screen.error_message = error_message
                 cur_screen.render_again = true
-                
             # Start training
             elsif is_clicked?(start_btn, event)
+                # Get ANN configs
                 batch_size = Integer(batch_size_box.value) rescue false
                 learning_rate = Float(learning_rate_box.value) rescue false
                 epochs = Integer(epochs_box.value) rescue false
 
+                # Validate ANN configs
                 error_message = nil
 
                 if not (batch_size and batch_size > 0)

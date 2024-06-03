@@ -1,3 +1,6 @@
+# This file contains the code for the activation functions used in the neural network
+
+# Activation functions enumeration
 module Activation
     SIGMOID = 0
     RELU = 1

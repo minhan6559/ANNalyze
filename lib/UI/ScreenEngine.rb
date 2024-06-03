@@ -7,6 +7,7 @@ require_relative 'InferenceScreen.rb'
 require_relative 'LoadingModelScreen.rb'
 require_relative 'Utils.rb'
 
+# Screen types enumeration
 module ScreenType
     MAIN_MENU = 0
     BUILDING_SCREEN = 1
@@ -15,6 +16,7 @@ module ScreenType
     LOADING_MODEL_SCREEN = 4
 end
 
+# Current screen class
 class CurrentScreen
     attr_accessor :type, :render_again, :mouse_events
     def initialize()
@@ -24,6 +26,7 @@ class CurrentScreen
     end
 end
 
+# Change screen
 def change_screen(cur_screen, new_screen)
     cur_screen.type = new_screen
     cur_screen.render_again = true

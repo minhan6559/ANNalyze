@@ -1,3 +1,5 @@
+# This file contains the code for the algorithm of the neural network
+
 require_relative 'Activations'
 require 'numo/narray'
 
@@ -16,6 +18,7 @@ def initialize_params(nodes_per_layer)
     prev = 784
     params = {}
     nodes_per_layer.each_with_index do |cur, i|
+        # He initialization
         params["W#{i+1}"] = Numo::DFloat.new(cur, prev).rand_norm * Math.sqrt(2.0/prev)
         params["b#{i+1}"] = Numo::DFloat.zeros(cur, 1)
         prev = cur
@@ -158,6 +161,11 @@ end
 
 # Save the model
 def save_model(model, model_name)
+    # Check if "saved_models" folder exists
+    if not Dir.exist?("saved_models")
+        Dir.mkdir("saved_models")
+    end
+    
     fp = File.open("./saved_models/#{model_name}.bin", "wb")
     fp.write(Marshal.dump(model))
     fp.close

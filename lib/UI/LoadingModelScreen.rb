@@ -1,3 +1,6 @@
+# This file contains the code to render the loading model screen
+
+# Loading model screen class
 class LoadingModelScreen
     attr_accessor :model_name, :start_index
     def initialize()
@@ -16,11 +19,13 @@ end
 def render_loading_model_screen(cur_screen, loading_model_screen)
     clear()
 
+    # Background
     Image.new(
         './images/LoadingModelScreen/Background.png',
         x: 0, y: 0, z: -1
     )
 
+    # Get the list of saved models from the "saved_models" directory
     model_list = Dir.entries('./saved_models')
     if model_list.include?('.DS_Store')
         model_list = model_list[3..-1]
@@ -28,7 +33,8 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
         model_list = model_list[2..-1]
     end
 
-    if model_list.length == 0
+    # Display the list of saved models
+    if model_list.length == 0 # No model found
         Text.new(
             "No model found !!!",
             x: 518, y: 349, z: 99,
@@ -36,19 +42,25 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
             font: './fonts/SF-Pro-Display-Semibold.otf'
         )
     else
+        model_list = model_list.sort
         start_index = loading_model_screen.start_index
+
+        # Display 6 models at a time
         min(6, model_list.length - start_index).times do |i|
+            # File name
             file_name_text = Text.new(
                 model_list[start_index + i][0...-4],
                 x: 397, y: 222 + 62 * i, z: 99,
                 size: 25, color: 'white'
             )
 
+            # Choose file button
             choose_file_btn = create_button(
                 './images/LoadingModelScreen/File_name_background.png',
                 372, 214 + 62 * i, 506, 49, cur_screen, ScreenType::LOADING_MODEL_SCREEN
             )
 
+            # Mouse events for the choose file button
             cur_screen.mouse_events << on(:mouse_down) do |event|
                 if is_clicked?(choose_file_btn, event)
                     loading_model_screen.model_name = file_name_text.text
@@ -58,6 +70,7 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
             end
         end
 
+        # Left button
         if start_index > 0
             left_btn = create_button(
                 './images/LoadingModelScreen/Left_button.png',
@@ -72,6 +85,7 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
             end
         end
 
+        # Right button
         if start_index + 6 < model_list.length
             right_btn = create_button(
                 './images/LoadingModelScreen/Right_button.png',
@@ -87,11 +101,13 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
         end
     end
 
+    # Home button
     home_btn = create_button(
         './images/MainMenu/Home_button.png',
         1171, 10, 55, 47, cur_screen, ScreenType::LOADING_MODEL_SCREEN
     )
 
+    # Mouse events for the home button
     cur_screen.mouse_events << on(:mouse_down) do |event|
         if is_clicked?(home_btn, event)
             reset_loading_model_screen(loading_model_screen)

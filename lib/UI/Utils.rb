@@ -13,6 +13,7 @@ def create_button(file_path, x, y, width, height, cur_screen, screen_type)
         loop: true
     )
 
+    # Mouse events for the button
     cur_screen.mouse_events << on(:mouse_move) do |event|
         case cur_screen.type
         when screen_type

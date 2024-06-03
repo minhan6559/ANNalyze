@@ -1,3 +1,6 @@
+# This file contains the code for the training screen of the application
+
+# Training screen class
 class TrainingScreen
     attr_accessor :x_train, :y_train, :x_test, :y_test, 
                 :model, :batch_size, :learning_rate, :epochs, :epoch, 
@@ -58,6 +61,7 @@ def single_step_train(training_screen)
     m = training_screen.x_train.shape[1]
     batch_size = training_screen.batch_size
 
+    # Shuffle the training data
     permutated_indexes = (0...m).to_a.shuffle
     shuffled_X = training_screen.x_train[true, permutated_indexes].reshape(784, m)
     shuffled_Y = training_screen.y_train[true, permutated_indexes].reshape(10, m)
@@ -113,6 +117,7 @@ def draw_network_with_input(input, model, has_input = true)
     # Draw network
     nodes_per_layer = model.nodes_per_layer
     x_start = 400 + (481.5 - (nodes_per_layer.length * 180 + 63) / 2.0)
+
     nodes_per_layer.each_with_index do |num_nodes, i|
         # Layer index
         y = 88
@@ -131,7 +136,7 @@ def draw_network_with_input(input, model, has_input = true)
             color: 'aqua'
         )
 
-        # Layer activations
+        # Draw activation name
         activation_name = nil
         x_minus = 0
         case model.activations[i]
@@ -177,13 +182,13 @@ def draw_network_with_input(input, model, has_input = true)
             )
         end
 
-        # Nodes
         y = 174 + (215 - (min(num_nodes, 11) * 40 - 10) / 2.0)
         if i == nodes_per_layer.length - 1
             y = 196
         end
         x = x_start + i * 180
 
+        # More nodes image
         if num_nodes > 11
             Image.new(
                 './images/Network/More_nodes.png',
@@ -191,10 +196,12 @@ def draw_network_with_input(input, model, has_input = true)
             )
         end
 
+        # Draw connections
         min(num_nodes, 11).times do |j|
             if j == 5 and num_nodes > 11
                 next
             end
+
             node_value = layer_values[i][j, 0]
             if num_nodes > 11 and j > 5
                 node_value = layer_values[i][j - 11, 0]
@@ -302,11 +309,14 @@ end
 
 # Draw the training information
 def draw_training_info(training_screen)
-    # Draw input
+    # Get a random input
     random_index = rand(0...training_screen.x_train.shape[1])
     input = training_screen.x_train[true, random_index].reshape(784, 1)
 
+    # Draw progress bar
     draw_progress_bar(training_screen)
+
+    # Draw network with input
     draw_network_with_input(input, training_screen.model, true)
 
     cost = training_screen.cost
@@ -321,6 +331,7 @@ def draw_training_info(training_screen)
             x_minus = 10
         end
 
+        # Draw epoch and cost
         Text.new(
             epoch_text,
             x: 135 - x_minus, y: 547,
@@ -376,7 +387,8 @@ def render_training_screen(cur_screen, training_screen)
     
     draw_training_info(training_screen)
 
-    if not training_screen.done_training
+    if not training_screen.done_training # Training is not done
+        # Train for one epoch
         training_screen.cost, training_screen.accu = single_step_train(training_screen)
         training_screen.epoch += 1
         cur_screen.render_again = true
@@ -384,6 +396,7 @@ def render_training_screen(cur_screen, training_screen)
             training_screen.done_training = true
         end
     else
+        # Buttons
         home_btn = create_button(
             './images/MainMenu/Home_button.png',
             1171, 10, 55, 47, cur_screen, ScreenType::TRAINING_SCREEN
@@ -403,16 +416,22 @@ def render_training_screen(cur_screen, training_screen)
             activeColor: 'white', activeTextColor: 'black'
         )
 
+        # Success save text
         success_text = nil
 
+        # Mouse events for the buttons
         cur_screen.mouse_events << on(:mouse_down) do |event|
             case cur_screen.type
             when ScreenType::TRAINING_SCREEN
+                # Home button
                 if is_clicked?(home_btn, event)
                     change_screen(cur_screen, ScreenType::MAIN_MENU)
                     reset_training_screen(training_screen)
                 end
+
+                # Save button
                 if is_clicked?(save_btn, event)
+                    # Save the model
                     model_name = model_name_box.value
                     if model_name.nil? or model_name.empty?
                         model_name = model_name_box.displayName
@@ -423,6 +442,7 @@ def render_training_screen(cur_screen, training_screen)
                         success_text.remove()
                     end
 
+                    # Show success save text
                     success_text = Text.new(
                         "Saved as \"#{model_name}\"",
                         x: 120 - model_name.length * 4, y: 680, size: 20,
