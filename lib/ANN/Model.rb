@@ -11,6 +11,7 @@ class ANN
     end
 end
 
+# Initialize parameters for the model
 def initialize_params(nodes_per_layer)
     prev = 784
     params = {}
@@ -22,6 +23,7 @@ def initialize_params(nodes_per_layer)
     return params
 end
 
+# Forward propagation for one layer
 def forward_prop_one_layer(a_prev, w, b, activation=Activation::RELU)
     z = w.dot(a_prev) + b
     case activation
@@ -41,6 +43,7 @@ def forward_prop_one_layer(a_prev, w, b, activation=Activation::RELU)
     return a, z
 end
 
+# Forward propagation for the whole model
 def forward_prop(x, model)
     cache = {}
     a_cur = x
@@ -58,6 +61,7 @@ def forward_prop(x, model)
     return a_cur, cache
 end
 
+# Forward propagation for one input
 def single_input_forward(x, model)
     layer_values = []
     a_cur = x
@@ -74,17 +78,20 @@ def single_input_forward(x, model)
     return layer_values
 end
 
+# Compute the cost of the model
 def compute_cost(aL, y)
     m = y.shape[1].to_f
     return -(1.0/m) * (y * Numo::NMath.log(aL)).sum
 end
 
+# Compute the accuracy of the model 
 def compute_accuracy(aL, y)
     _aL = aL.argmax(axis: 0)
     _y = y.argmax(axis: 0)
     return (_aL.eq(_y)).count.to_f / y.shape[1]
 end
 
+# Backward propagation for one layer
 def back_prop_one_layer(dA_cur, w_cur, z_cur, a_prev, activation=Activation::RELU)
     m = a_prev.shape[1].to_f
     case activation
@@ -109,6 +116,7 @@ def back_prop_one_layer(dA_cur, w_cur, z_cur, a_prev, activation=Activation::REL
     return dA_prev, dW_cur, db_cur
 end
 
+# Backward propagation for the whole model
 def back_prop(aL, y, cache, model)
     dA_prev = aL - y
     l = model.nodes_per_layer.length
@@ -133,6 +141,7 @@ def back_prop(aL, y, cache, model)
     return grads
 end
 
+# Gradient descent update
 def update_params_with_gd(model, learning_rate, grads)
     model.nodes_per_layer.length.times do |i|
         layer_idx = i + 1
@@ -141,40 +150,26 @@ def update_params_with_gd(model, learning_rate, grads)
     end
 end
 
+# Make a prediction
 def predict(x, model)
     aL = forward_prop(x, model)[0]
     return aL.argmax
 end
 
+# Save the model
 def save_model(model, model_name)
     fp = File.open("./saved_models/#{model_name}.bin", "wb")
     fp.write(Marshal.dump(model))
     fp.close
 end
 
+# Load the model
 def load_model(model_name)
     return Marshal.load(File.open("./saved_models/#{model_name}.bin", "rb"))
 end
 
+# Load the dataset
 def load_bin_dataset(dataset_name)
     dataset = Marshal.load(File.open("./dataset/dataset_bin/#{dataset_name}.bin", "rb"))
     return dataset
-end
-
-if __FILE__ == $0
-    x_train = load_bin_dataset("10000_X_train")
-    y_train = load_bin_dataset("10000_Y_train")
-
-    p y_train.sum(axis: 1)
-
-    model = ANN.new([128, 32, 10], [Activation::RELU, Activation::RELU, Activation::SOFTMAX], 64)
-    
-    train(x_train, y_train, model, 100)
-    x_test = load_dataset("X_val")
-    y_test = load_dataset("Y_val")
-
-    puts "Accuracy: #{compute_accuracy(forward_prop(x_test, model)[0], y_test)}"
-    puts "Accuracy: #{compute_accuracy(forward_prop(x_test, model)[0], y_test)}"
-    
-    save_model(model, "full_train_model_256_128")
 end
