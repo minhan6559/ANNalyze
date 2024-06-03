@@ -25,6 +25,11 @@ def render_loading_model_screen(cur_screen, loading_model_screen)
         x: 0, y: 0, z: -1
     )
 
+    # Check if the "saved_models" directory exists
+    if !Dir.exist?('./saved_models')
+        Dir.mkdir('./saved_models')
+    end
+
     # Get the list of saved models from the "saved_models" directory
     model_list = Dir.entries('./saved_models')
     if model_list.include?('.DS_Store')
