@@ -1,2 +1,2 @@
-## Link to video demo: https://youtu.be/DCoeUoZj2y8
-# Link to the report: [./Artificial_Neural_Network.pdf](Report file)
+## Link to video demo [here](https://youtu.be/DCoeUoZj2y8)
+## Link to the report [here](./Artificial_Neural_Network.pdf)
