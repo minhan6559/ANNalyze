@@ -9,7 +9,9 @@ The program achieves real-time predictions by training the neural network on the
 This project was awarded a **perfect final result of 100%**, and I am proud to share it with you as a part of my studies in artificial intelligence and machine learning.
 
 ## Demo
-Link to video demo [here](https://youtu.be/DCoeUoZj2y8)
+[![ANNalyze Demo Video](https://img.youtube.com/vi/DCoeUoZj2y8/maxresdefault.jpg)](https://www.youtube.com/watch?v=DCoeUoZj2y8 "ANNalyze - Neural Network Demo")
+*Click the image to watch the demo video on YouTube*
+
 
 ## Screenshots
 ![Building Screen](./images/Screenshots/building_screen.png)
